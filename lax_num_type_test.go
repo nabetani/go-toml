@@ -2,6 +2,7 @@ package toml_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/pelletier/go-toml/v2"
@@ -28,6 +29,33 @@ type Float32PtrValues struct {
 
 type Int64Values struct {
 	Foo int64
+}
+
+type Uint64Values struct {
+	Foo uint64
+}
+
+type Int32Values struct {
+	Foo int32
+}
+
+type Uint32Values struct {
+	Foo uint32
+}
+
+type Int16Values struct {
+	Foo int16
+}
+
+type Uint16Values struct {
+	Foo uint16
+}
+type Int8Values struct {
+	Foo int8
+}
+
+type Uint8Values struct {
+	Foo uint8
 }
 
 type Int64PtrValues struct {
@@ -247,5 +275,118 @@ func TestReadComplexValueAsInt64WithoutLaxNumericType(t *testing.T) {
 	err := toml.UnmarshalWithOpts(complexToml, &v, opts)
 	if nil == err {
 		t.Errorf("err should not be nil")
+	}
+}
+
+func TestReadHugeIntAsInt64(t *testing.T) {
+	val := int64(0x5555_5555_5555_5555)
+	tomlStr := []byte(fmt.Sprintf("Foo=%d.0", val))
+	v := Int64Values{}
+	err := toml.UnmarshalWithOpts(tomlStr, &v, toml.DecorderOpts{LaxNumericType: true})
+	if err != nil {
+		t.Errorf("err=%q, want nil", err)
+	}
+	if v.Foo != val {
+		t.Errorf("v.Foo=%v, want %v (toml is %q)", v.Foo, val, tomlStr)
+	}
+}
+func TestReadHugeIntAsInt64ExpFormat(t *testing.T) {
+	val := int64(-8608480567731124087)
+	tomlStr := []byte("Foo=-8.608480567731124087000e+18")
+	v := Int64Values{}
+	err := toml.UnmarshalWithOpts(tomlStr, &v, toml.DecorderOpts{LaxNumericType: true})
+	if err != nil {
+		t.Errorf("err=%q, want nil", err)
+	}
+	if v.Foo != val {
+		t.Errorf("v.Foo=%v, want %v (toml is %q)", v.Foo, val, tomlStr)
+	}
+}
+
+func TestReadHugeIntAsUint64(t *testing.T) {
+	val := uint64(0xF555_5555_5555_5555)
+	tomlStr := []byte(fmt.Sprintf("Foo=%d.0", val))
+	v := Uint64Values{}
+	err := toml.UnmarshalWithOpts(tomlStr, &v, toml.DecorderOpts{LaxNumericType: true})
+	if err != nil {
+		t.Errorf("err=%q, want nil", err)
+	}
+	if v.Foo != val {
+		t.Errorf("v.Foo=%v, want %v (toml is %q)", v.Foo, val, tomlStr)
+	}
+}
+
+func TestReadHugeIntAsInt32(t *testing.T) {
+	val := int32(0x5555_5555)
+	tomlStr := []byte(fmt.Sprintf("Foo=%d.0", val))
+	v := Int32Values{}
+	err := toml.UnmarshalWithOpts(tomlStr, &v, toml.DecorderOpts{LaxNumericType: true})
+	if err != nil {
+		t.Errorf("err=%q, want nil", err)
+	}
+	if v.Foo != val {
+		t.Errorf("v.Foo=%v, want %v (toml is %q)", v.Foo, val, tomlStr)
+	}
+}
+func TestReadHugeIntAsUint32(t *testing.T) {
+	val := uint32(0xFAFA_CAFE)
+	tomlStr := []byte(fmt.Sprintf("Foo=%d.0", val))
+	v := Uint32Values{}
+	err := toml.UnmarshalWithOpts(tomlStr, &v, toml.DecorderOpts{LaxNumericType: true})
+	if err != nil {
+		t.Errorf("err=%q, want nil", err)
+	}
+	if v.Foo != val {
+		t.Errorf("v.Foo=%v, want %v (toml is %q)", v.Foo, val, tomlStr)
+	}
+}
+
+func TestReadHugeIntAsInt16(t *testing.T) {
+	val := int16(0x5555)
+	tomlStr := []byte(fmt.Sprintf("Foo=%d.0", val))
+	v := Int16Values{}
+	err := toml.UnmarshalWithOpts(tomlStr, &v, toml.DecorderOpts{LaxNumericType: true})
+	if err != nil {
+		t.Errorf("err=%q, want nil", err)
+	}
+	if v.Foo != val {
+		t.Errorf("v.Foo=%v, want %v (toml is %q)", v.Foo, val, tomlStr)
+	}
+}
+func TestReadHugeIntAsUint16(t *testing.T) {
+	val := uint16(0xCAFE)
+	tomlStr := []byte(fmt.Sprintf("Foo=%d.0", val))
+	v := Uint16Values{}
+	err := toml.UnmarshalWithOpts(tomlStr, &v, toml.DecorderOpts{LaxNumericType: true})
+	if err != nil {
+		t.Errorf("err=%q, want nil", err)
+	}
+	if v.Foo != val {
+		t.Errorf("v.Foo=%v, want %v (toml is %q)", v.Foo, val, tomlStr)
+	}
+}
+
+func TestReadHugeIntAsInt8(t *testing.T) {
+	val := int8(0x55)
+	tomlStr := []byte(fmt.Sprintf("Foo=%d.0", val))
+	v := Int8Values{}
+	err := toml.UnmarshalWithOpts(tomlStr, &v, toml.DecorderOpts{LaxNumericType: true})
+	if err != nil {
+		t.Errorf("err=%q, want nil", err)
+	}
+	if v.Foo != val {
+		t.Errorf("v.Foo=%v, want %v (toml is %q)", v.Foo, val, tomlStr)
+	}
+}
+func TestReadHugeIntAsUint8(t *testing.T) {
+	val := uint8(0xCA)
+	tomlStr := []byte(fmt.Sprintf("Foo=%d.0", val))
+	v := Uint8Values{}
+	err := toml.UnmarshalWithOpts(tomlStr, &v, toml.DecorderOpts{LaxNumericType: true})
+	if err != nil {
+		t.Errorf("err=%q, want nil", err)
+	}
+	if v.Foo != val {
+		t.Errorf("v.Foo=%v, want %v (toml is %q)", v.Foo, val, tomlStr)
 	}
 }
