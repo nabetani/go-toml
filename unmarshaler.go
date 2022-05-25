@@ -19,6 +19,17 @@ import (
 // Unmarshal deserializes a TOML document into a Go value.
 //
 // It is a shortcut for Decoder.Decode() with the default options.
+func UnmarshalWithOpts(data []byte, v interface{}, opts DecorderOpts) error {
+	p := parser{}
+	p.Reset(data)
+	d := decoder{p: &p, decOpts: opts}
+
+	return d.FromParser(v)
+}
+
+// Unmarshal deserializes a TOML document into a Go value.
+//
+// It is a shortcut for Decoder.Decode() with the default options.
 func Unmarshal(data []byte, v interface{}) error {
 	p := parser{}
 	p.Reset(data)
@@ -104,6 +115,11 @@ func (d *Decoder) Decode(v interface{}) error {
 	return dec.FromParser(v)
 }
 
+// Options for decorder
+type DecorderOpts struct {
+	LaxNumericType bool // accept "1" as floating point value and "1.0" as integral value
+}
+
 type decoder struct {
 	// Which parser instance in use for this decoding session.
 	p *parser
@@ -129,6 +145,9 @@ type decoder struct {
 
 	// Strict mode
 	strict strict
+
+	// options for decorder
+	decOpts DecorderOpts
 }
 
 func (d *decoder) expr() *ast.Node {
@@ -773,7 +792,9 @@ func (d *decoder) unmarshalFloat(value *ast.Node, v reflect.Value) error {
 	if err != nil {
 		return err
 	}
-
+	floatToIntDecodeError := func() error {
+		return newDecodeError(value.Data, "float cannot be assigned to %s", v.Kind())
+	}
 	switch v.Kind() {
 	case reflect.Float64:
 		v.SetFloat(f)
@@ -784,6 +805,46 @@ func (d *decoder) unmarshalFloat(value *ast.Node, v reflect.Value) error {
 		v.SetFloat(f)
 	case reflect.Interface:
 		v.Set(reflect.ValueOf(f))
+	case reflect.Int64:
+		if !d.decOpts.LaxNumericType {
+			return floatToIntDecodeError()
+		}
+		v.Set(reflect.ValueOf(int64(f)))
+	case reflect.Uint64:
+		if !d.decOpts.LaxNumericType {
+			return floatToIntDecodeError()
+		}
+		v.Set(reflect.ValueOf(uint64(f)))
+	case reflect.Int32:
+		if !d.decOpts.LaxNumericType {
+			return floatToIntDecodeError()
+		}
+		v.Set(reflect.ValueOf(int32(f)))
+	case reflect.Uint32:
+		if !d.decOpts.LaxNumericType {
+			return floatToIntDecodeError()
+		}
+		v.Set(reflect.ValueOf(uint32(f)))
+	case reflect.Int16:
+		if !d.decOpts.LaxNumericType {
+			return floatToIntDecodeError()
+		}
+		v.Set(reflect.ValueOf(int16(f)))
+	case reflect.Uint16:
+		if !d.decOpts.LaxNumericType {
+			return floatToIntDecodeError()
+		}
+		v.Set(reflect.ValueOf(uint16(f)))
+	case reflect.Int8:
+		if !d.decOpts.LaxNumericType {
+			return floatToIntDecodeError()
+		}
+		v.Set(reflect.ValueOf(int8(f)))
+	case reflect.Uint8:
+		if !d.decOpts.LaxNumericType {
+			return floatToIntDecodeError()
+		}
+		v.Set(reflect.ValueOf(uint8(f)))
 	default:
 		return newDecodeError(value.Data, "float cannot be assigned to %s", v.Kind())
 	}
@@ -862,6 +923,18 @@ func (d *decoder) unmarshalInteger(value *ast.Node, v reflect.Value) error {
 		v.Set(reflect.ValueOf(uint(i)))
 	case reflect.Interface:
 		v.Set(reflect.ValueOf(i))
+	case reflect.Float32:
+		if d.decOpts.LaxNumericType {
+			v.Set(reflect.ValueOf(float32(i)))
+		} else {
+			err = fmt.Errorf("toml: cannot store TOML integer into a Go %s", v.Kind())
+		}
+	case reflect.Float64:
+		if d.decOpts.LaxNumericType {
+			v.Set(reflect.ValueOf(float64(i)))
+		} else {
+			err = fmt.Errorf("toml: cannot store TOML integer into a Go %s", v.Kind())
+		}
 	default:
 		err = fmt.Errorf("toml: cannot store TOML integer into a Go %s", v.Kind())
 	}
