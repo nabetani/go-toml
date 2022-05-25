@@ -390,3 +390,129 @@ func TestReadFloatLikeTextAsUint8(t *testing.T) {
 		t.Errorf("v.Foo=%v, want %v (toml is %q)", v.Foo, val, tomlStr)
 	}
 }
+
+type NotFitTestCase struct {
+	tomlStr string
+	msg     string
+}
+
+func TestReadUint8ButNotFit(t *testing.T) {
+	for _, c := range []NotFitTestCase{
+		{"Foo=1.5", "toml: number 1.5 does not fit in a integral value"},
+		{"Foo=1234.0", "toml: number 1234.0 does not fit in a uint8"},
+		{"Foo=-123.00", "toml: number -123.00 does not fit in a unsigned integral value"},
+	} {
+		v := Uint8Values{}
+		err := toml.UnmarshalWithOpts([]byte(c.tomlStr), &v, toml.DecorderOpts{LaxNumericType: true})
+		if err == nil {
+			t.Errorf("err should not be nil")
+		} else if err.Error() != c.msg {
+			t.Errorf("err.Error()=%q, want %q", err.Error(), c.msg)
+		}
+	}
+}
+
+func TestReadUint16ButNotFit(t *testing.T) {
+	for _, c := range []NotFitTestCase{
+		{"Foo=1.5", "toml: number 1.5 does not fit in a integral value"},
+		{"Foo=123456.0", "toml: number 123456.0 does not fit in a uint16"},
+		{"Foo=-123.00", "toml: number -123.00 does not fit in a unsigned integral value"},
+	} {
+		v := Uint16Values{}
+		err := toml.UnmarshalWithOpts([]byte(c.tomlStr), &v, toml.DecorderOpts{LaxNumericType: true})
+		if err == nil {
+			t.Errorf("err should not be nil")
+		} else if err.Error() != c.msg {
+			t.Errorf("err.Error()=%q, want %q", err.Error(), c.msg)
+		}
+	}
+}
+func TestReadUint32ButNotFit(t *testing.T) {
+	for _, c := range []NotFitTestCase{
+		{"Foo=1.5", "toml: number 1.5 does not fit in a integral value"},
+		{"Foo=123456123456.0", "toml: number 123456123456.0 does not fit in a uint32"},
+		{"Foo=-123.00", "toml: number -123.00 does not fit in a unsigned integral value"},
+	} {
+		v := Uint32Values{}
+		err := toml.UnmarshalWithOpts([]byte(c.tomlStr), &v, toml.DecorderOpts{LaxNumericType: true})
+		if err == nil {
+			t.Errorf("err should not be nil")
+		} else if err.Error() != c.msg {
+			t.Errorf("err.Error()=%q, want %q", err.Error(), c.msg)
+		}
+	}
+}
+func TestReadUint64ButNotFit(t *testing.T) {
+	for _, c := range []NotFitTestCase{
+		{"Foo=1.5", "toml: number 1.5 does not fit in a integral value"},
+		{"Foo=123456123456123456123456.0", "toml: number 123456123456123456123456.0 does not fit in a unsigned integral value"},
+		{"Foo=-123.00", "toml: number -123.00 does not fit in a unsigned integral value"},
+	} {
+		v := Uint64Values{}
+		err := toml.UnmarshalWithOpts([]byte(c.tomlStr), &v, toml.DecorderOpts{LaxNumericType: true})
+		if err == nil {
+			t.Errorf("err should not be nil")
+		} else if err.Error() != c.msg {
+			t.Errorf("err.Error()=%q, want %q", err.Error(), c.msg)
+		}
+	}
+}
+
+func TestReadInt8ButNotFit(t *testing.T) {
+	for _, c := range []NotFitTestCase{
+		{"Foo=1.5", "toml: number 1.5 does not fit in a integral value"},
+		{"Foo=1234.0", "toml: number 1234.0 does not fit in a int8"},
+	} {
+		v := Int8Values{}
+		err := toml.UnmarshalWithOpts([]byte(c.tomlStr), &v, toml.DecorderOpts{LaxNumericType: true})
+		if err == nil {
+			t.Errorf("err should not be nil")
+		} else if err.Error() != c.msg {
+			t.Errorf("err.Error()=%q, want %q", err.Error(), c.msg)
+		}
+	}
+}
+
+func TestReadInt16ButNotFit(t *testing.T) {
+	for _, c := range []NotFitTestCase{
+		{"Foo=1.5", "toml: number 1.5 does not fit in a integral value"},
+		{"Foo=123456.0", "toml: number 123456.0 does not fit in a int16"},
+	} {
+		v := Int16Values{}
+		err := toml.UnmarshalWithOpts([]byte(c.tomlStr), &v, toml.DecorderOpts{LaxNumericType: true})
+		if err == nil {
+			t.Errorf("err should not be nil")
+		} else if err.Error() != c.msg {
+			t.Errorf("err.Error()=%q, want %q", err.Error(), c.msg)
+		}
+	}
+}
+func TestReadInt32ButNotFit(t *testing.T) {
+	for _, c := range []NotFitTestCase{
+		{"Foo=1.5", "toml: number 1.5 does not fit in a integral value"},
+		{"Foo=123456123456.0", "toml: number 123456123456.0 does not fit in a int32"},
+	} {
+		v := Int32Values{}
+		err := toml.UnmarshalWithOpts([]byte(c.tomlStr), &v, toml.DecorderOpts{LaxNumericType: true})
+		if err == nil {
+			t.Errorf("err should not be nil")
+		} else if err.Error() != c.msg {
+			t.Errorf("err.Error()=%q, want %q", err.Error(), c.msg)
+		}
+	}
+}
+
+func TestReadInt64ButNotFit(t *testing.T) {
+	for _, c := range []NotFitTestCase{
+		{"Foo=1.5", "toml: number 1.5 does not fit in a integral value"},
+		{"Foo=123456123456123456123456.0", "toml: number 123456123456123456123456.0 does not fit in a integral value"},
+	} {
+		v := Int64Values{}
+		err := toml.UnmarshalWithOpts([]byte(c.tomlStr), &v, toml.DecorderOpts{LaxNumericType: true})
+		if err == nil {
+			t.Errorf("err should not be nil")
+		} else if err.Error() != c.msg {
+			t.Errorf("err.Error()=%q, want %q", err.Error(), c.msg)
+		}
+	}
+}
