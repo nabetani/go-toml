@@ -7,7 +7,8 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
-var simpleToml = []byte(`Foo=123`)
+var simpleTomlI = []byte(`Foo=123`)
+var simpleTomlF = []byte(`Foo=123.0`)
 
 type Float64Values struct {
 	Foo float64
@@ -35,7 +36,7 @@ type Int64PtrValues struct {
 
 func TestReadAsFloat(t *testing.T) {
 	v := Float64Values{}
-	err := toml.Unmarshal(simpleToml, &v)
+	err := toml.Unmarshal(simpleTomlI, &v)
 	if nil == err {
 		t.Error("err should not be nil")
 	}
@@ -44,7 +45,7 @@ func TestReadAsFloat(t *testing.T) {
 func TestReadAsFloatWithLaxNumericType(t *testing.T) {
 	v := Float64Values{}
 	opts := toml.DecorderOpts{LaxNumericType: true}
-	err := toml.UnmarshalWithOpts(simpleToml, &v, opts)
+	err := toml.UnmarshalWithOpts(simpleTomlI, &v, opts)
 	if nil != err {
 		t.Errorf("err is %q want nil", err)
 	}
@@ -56,7 +57,7 @@ func TestReadAsFloatWithLaxNumericType(t *testing.T) {
 func TestReadAsFloatPtrWithLaxNumericType(t *testing.T) {
 	v := Float64PtrValues{}
 	opts := toml.DecorderOpts{LaxNumericType: true}
-	err := toml.UnmarshalWithOpts(simpleToml, &v, opts)
+	err := toml.UnmarshalWithOpts(simpleTomlI, &v, opts)
 	if nil != err {
 		t.Errorf("err is %q want nil", err)
 	}
@@ -68,7 +69,7 @@ func TestReadAsFloatPtrWithLaxNumericType(t *testing.T) {
 func TestReadAsFloat32WithLaxNumericType(t *testing.T) {
 	v := Float32Values{}
 	opts := toml.DecorderOpts{LaxNumericType: true}
-	err := toml.UnmarshalWithOpts(simpleToml, &v, opts)
+	err := toml.UnmarshalWithOpts(simpleTomlI, &v, opts)
 	if nil != err {
 		t.Errorf("err is %q want nil", err)
 	}
@@ -80,7 +81,7 @@ func TestReadAsFloat32WithLaxNumericType(t *testing.T) {
 func TestReadAsFloat32PtrWithLaxNumericType(t *testing.T) {
 	v := Float32PtrValues{}
 	opts := toml.DecorderOpts{LaxNumericType: true}
-	err := toml.UnmarshalWithOpts(simpleToml, &v, opts)
+	err := toml.UnmarshalWithOpts(simpleTomlI, &v, opts)
 	if nil != err {
 		t.Errorf("err is %q want nil", err)
 	}
@@ -92,7 +93,7 @@ func TestReadAsFloat32PtrWithLaxNumericType(t *testing.T) {
 func TestReadAsInt64WithLaxNumericType(t *testing.T) {
 	v := Int64Values{}
 	opts := toml.DecorderOpts{LaxNumericType: true}
-	err := toml.UnmarshalWithOpts(simpleToml, &v, opts)
+	err := toml.UnmarshalWithOpts(simpleTomlF, &v, opts)
 	if nil != err {
 		t.Errorf("err is %q want nil", err)
 	}
@@ -104,12 +105,54 @@ func TestReadAsInt64WithLaxNumericType(t *testing.T) {
 func TestReadAsInt64PtrWithLaxNumericType(t *testing.T) {
 	v := Int64PtrValues{}
 	opts := toml.DecorderOpts{LaxNumericType: true}
-	err := toml.UnmarshalWithOpts(simpleToml, &v, opts)
+	err := toml.UnmarshalWithOpts(simpleTomlI, &v, opts)
 	if nil != err {
 		t.Errorf("err is %q want nil", err)
 	}
 	if *v.Foo != 123 {
 		t.Errorf("v.Foo=%v, want 123", *v.Foo)
+	}
+}
+
+var viciousToml = []byte(`
+I64=-64.0
+U64=64.0
+I32=-32.0
+U32=32.0
+I16=-16.0
+U16=16.0
+I8=-8.0
+U8=8.0
+F64=12
+F32=34
+`)
+
+type ManyNumTypes struct {
+	I64 int64
+	U64 uint64
+	I32 int32
+	U32 uint32
+	I16 int16
+	U16 uint16
+	I8  int8
+	U8  uint8
+	F64 float64
+	F32 float32
+}
+
+func TestReadManyNumTypesWithLaxNumericType(t *testing.T) {
+	v := ManyNumTypes{}
+	opts := toml.DecorderOpts{LaxNumericType: true}
+	err := toml.UnmarshalWithOpts(viciousToml, &v, opts)
+	if nil != err {
+		t.Errorf("err is %q want nil", err)
+	}
+	jbytes, err := json.Marshal(v)
+	jstr := string(jbytes)
+
+	expect := "{\"I64\":-64,\"U64\":64,\"I32\":-32,\"U32\":32,\"I16\":-16,\"U16\":16,\"I8\":-8,\"U8\":8,\"F64\":12,\"F32\":34}"
+	if jstr != expect {
+		t.Errorf("jst=%q, want %q", jstr, expect)
 	}
 }
 
@@ -169,9 +212,9 @@ func TestReadComplexValueAsFloat64WithLaxNumericType(t *testing.T) {
 	}
 	jbytes, err := json.Marshal(v)
 	jstr := string(jbytes)
-	expects := "{\"Foo\":12,\"Bar\":{\"Grault\":23,\"Baz\":{\"Qux\":34,\"Quux\":45,\"Corge\":[86,7800]},\"Garply\":{\"Fred\":234,\"Waldo\":123},\"Plugh\":{\"Thud\":456,\"Xyzzy\":345}}}"
-	if jstr != expects {
-		t.Errorf("jst=%q, want %q", jstr, expects)
+	expect := "{\"Foo\":12,\"Bar\":{\"Grault\":23,\"Baz\":{\"Qux\":34,\"Quux\":45,\"Corge\":[86,7800]},\"Garply\":{\"Fred\":234,\"Waldo\":123},\"Plugh\":{\"Thud\":456,\"Xyzzy\":345}}}"
+	if jstr != expect {
+		t.Errorf("jst=%q, want %q", jstr, expect)
 	}
 }
 func TestReadComplexValueAsFloat64WithoutLaxNumericType(t *testing.T) {
@@ -192,9 +235,9 @@ func TestReadComplexValueAsInt64WithLaxNumericType(t *testing.T) {
 	}
 	jbytes, err := json.Marshal(v)
 	jstr := string(jbytes)
-	expects := "{\"Foo\":12,\"Bar\":{\"Grault\":23,\"Baz\":{\"Qux\":34,\"Quux\":45,\"Corge\":[86,7800]},\"Garply\":{\"Fred\":234,\"Waldo\":123},\"Plugh\":{\"Thud\":456,\"Xyzzy\":345}}}"
-	if jstr != expects {
-		t.Errorf("jst=%q, want %q", jstr, expects)
+	expect := "{\"Foo\":12,\"Bar\":{\"Grault\":23,\"Baz\":{\"Qux\":34,\"Quux\":45,\"Corge\":[86,7800]},\"Garply\":{\"Fred\":234,\"Waldo\":123},\"Plugh\":{\"Thud\":456,\"Xyzzy\":345}}}"
+	if jstr != expect {
+		t.Errorf("jst=%q, want %q", jstr, expect)
 	}
 }
 
