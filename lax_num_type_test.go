@@ -316,7 +316,7 @@ func TestReadHugeIntAsUint64(t *testing.T) {
 	}
 }
 
-func TestReadHugeIntAsInt32(t *testing.T) {
+func TestReadFloatLikeTextAsInt32(t *testing.T) {
 	val := int32(0x5555_5555)
 	tomlStr := []byte(fmt.Sprintf("Foo=%d.0", val))
 	v := Int32Values{}
@@ -328,7 +328,7 @@ func TestReadHugeIntAsInt32(t *testing.T) {
 		t.Errorf("v.Foo=%v, want %v (toml is %q)", v.Foo, val, tomlStr)
 	}
 }
-func TestReadHugeIntAsUint32(t *testing.T) {
+func TestReadFloatLikeTextAsUint32(t *testing.T) {
 	val := uint32(0xFAFA_CAFE)
 	tomlStr := []byte(fmt.Sprintf("Foo=%d.0", val))
 	v := Uint32Values{}
@@ -341,7 +341,7 @@ func TestReadHugeIntAsUint32(t *testing.T) {
 	}
 }
 
-func TestReadHugeIntAsInt16(t *testing.T) {
+func TestReadFloatLikeTextAsInt16(t *testing.T) {
 	val := int16(0x5555)
 	tomlStr := []byte(fmt.Sprintf("Foo=%d.0", val))
 	v := Int16Values{}
@@ -353,7 +353,7 @@ func TestReadHugeIntAsInt16(t *testing.T) {
 		t.Errorf("v.Foo=%v, want %v (toml is %q)", v.Foo, val, tomlStr)
 	}
 }
-func TestReadHugeIntAsUint16(t *testing.T) {
+func TestReadFloatLikeTextAsUint16(t *testing.T) {
 	val := uint16(0xCAFE)
 	tomlStr := []byte(fmt.Sprintf("Foo=%d.0", val))
 	v := Uint16Values{}
@@ -366,7 +366,7 @@ func TestReadHugeIntAsUint16(t *testing.T) {
 	}
 }
 
-func TestReadHugeIntAsInt8(t *testing.T) {
+func TestReadFloatLikeTextAsInt8(t *testing.T) {
 	val := int8(0x55)
 	tomlStr := []byte(fmt.Sprintf("Foo=%d.0", val))
 	v := Int8Values{}
@@ -378,7 +378,7 @@ func TestReadHugeIntAsInt8(t *testing.T) {
 		t.Errorf("v.Foo=%v, want %v (toml is %q)", v.Foo, val, tomlStr)
 	}
 }
-func TestReadHugeIntAsUint8(t *testing.T) {
+func TestReadFloatLikeTextAsUint8(t *testing.T) {
 	val := uint8(0xCA)
 	tomlStr := []byte(fmt.Sprintf("Foo=%d.0", val))
 	v := Uint8Values{}
