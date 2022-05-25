@@ -792,9 +792,14 @@ func (d *decoder) unmarshalFloat(value *ast.Node, v reflect.Value) error {
 	if err != nil {
 		return err
 	}
-	floatToIntDecodeError := func() error {
-		return newDecodeError(value.Data, "float cannot be assigned to %s", v.Kind())
+	unmarshalToIntegral := func(conv func() interface{}) error {
+		if !d.decOpts.LaxNumericType {
+			return newDecodeError(value.Data, "float cannot be assigned to %s", v.Kind())
+		}
+		v.Set(reflect.ValueOf(conv()))
+		return nil
 	}
+
 	switch v.Kind() {
 	case reflect.Float64:
 		v.SetFloat(f)
@@ -806,45 +811,21 @@ func (d *decoder) unmarshalFloat(value *ast.Node, v reflect.Value) error {
 	case reflect.Interface:
 		v.Set(reflect.ValueOf(f))
 	case reflect.Int64:
-		if !d.decOpts.LaxNumericType {
-			return floatToIntDecodeError()
-		}
-		v.Set(reflect.ValueOf(int64(f)))
+		return unmarshalToIntegral(func() interface{} { return int64(f) })
 	case reflect.Uint64:
-		if !d.decOpts.LaxNumericType {
-			return floatToIntDecodeError()
-		}
-		v.Set(reflect.ValueOf(uint64(f)))
+		return unmarshalToIntegral(func() interface{} { return uint64(f) })
 	case reflect.Int32:
-		if !d.decOpts.LaxNumericType {
-			return floatToIntDecodeError()
-		}
-		v.Set(reflect.ValueOf(int32(f)))
+		return unmarshalToIntegral(func() interface{} { return int32(f) })
 	case reflect.Uint32:
-		if !d.decOpts.LaxNumericType {
-			return floatToIntDecodeError()
-		}
-		v.Set(reflect.ValueOf(uint32(f)))
+		return unmarshalToIntegral(func() interface{} { return uint32(f) })
 	case reflect.Int16:
-		if !d.decOpts.LaxNumericType {
-			return floatToIntDecodeError()
-		}
-		v.Set(reflect.ValueOf(int16(f)))
+		return unmarshalToIntegral(func() interface{} { return int16(f) })
 	case reflect.Uint16:
-		if !d.decOpts.LaxNumericType {
-			return floatToIntDecodeError()
-		}
-		v.Set(reflect.ValueOf(uint16(f)))
+		return unmarshalToIntegral(func() interface{} { return uint16(f) })
 	case reflect.Int8:
-		if !d.decOpts.LaxNumericType {
-			return floatToIntDecodeError()
-		}
-		v.Set(reflect.ValueOf(int8(f)))
+		return unmarshalToIntegral(func() interface{} { return int8(f) })
 	case reflect.Uint8:
-		if !d.decOpts.LaxNumericType {
-			return floatToIntDecodeError()
-		}
-		v.Set(reflect.ValueOf(uint8(f)))
+		return unmarshalToIntegral(func() interface{} { return uint8(f) })
 	default:
 		return newDecodeError(value.Data, "float cannot be assigned to %s", v.Kind())
 	}
