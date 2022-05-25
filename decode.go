@@ -273,7 +273,7 @@ func parseFloatTextAsUint64Impl(b []byte) (uint64, error) {
 	}
 	u64, accuracy := val.Uint64()
 	if accuracy != big.Exact {
-		return 0, newDecodeError(b, "number %s does not fit in a integral value", string(b))
+		return 0, newDecodeError(b, "number %s does not fit in a unsigned integral value", string(b))
 	}
 	return u64, nil
 }
@@ -293,7 +293,7 @@ func parseFloatTextAsInt32(b []byte) (interface{}, error) {
 		return nil, err
 	}
 	if int64(int32(v)) != v {
-		return nil, newDecodeError(b, "number %v does not fit in a int32", v)
+		return nil, newDecodeError(b, "number %v does not fit in a int32", string(b))
 	}
 	return int32(v), nil
 }
@@ -303,7 +303,7 @@ func parseFloatTextAsUint32(b []byte) (interface{}, error) {
 		return nil, err
 	}
 	if uint64(uint32(v)) != v {
-		return nil, newDecodeError(b, "number %v does not fit in a uint32", v)
+		return nil, newDecodeError(b, "number %v does not fit in a uint32", string(b))
 	}
 	return uint32(v), nil
 }
@@ -313,7 +313,7 @@ func parseFloatTextAsInt16(b []byte) (interface{}, error) {
 		return nil, err
 	}
 	if int64(int16(v)) != v {
-		return nil, newDecodeError(b, "number %v does not fit in a int16", v)
+		return nil, newDecodeError(b, "number %v does not fit in a int16", string(b))
 	}
 	return int16(v), nil
 
@@ -324,7 +324,7 @@ func parseFloatTextAsUint16(b []byte) (interface{}, error) {
 		return nil, err
 	}
 	if uint64(uint16(v)) != v {
-		return nil, newDecodeError(b, "number %v does not fit in a uint16", v)
+		return nil, newDecodeError(b, "number %v does not fit in a uint16", string(b))
 	}
 	return uint16(v), nil
 }
@@ -334,7 +334,7 @@ func parseFloatTextAsInt8(b []byte) (interface{}, error) {
 		return nil, err
 	}
 	if int64(int8(v)) != v {
-		return nil, newDecodeError(b, "number %v does not fit in a int8", v)
+		return nil, newDecodeError(b, "number %v does not fit in a int8", string(b))
 	}
 	return int8(v), nil
 
@@ -345,7 +345,7 @@ func parseFloatTextAsUint8(b []byte) (interface{}, error) {
 		return nil, err
 	}
 	if uint64(uint8(v)) != v {
-		return nil, newDecodeError(b, "number %v does not fit in a uint8", v)
+		return nil, newDecodeError(b, "number %v does not fit in a uint8", string(b))
 	}
 	return uint8(v), nil
 }
