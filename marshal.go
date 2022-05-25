@@ -621,6 +621,11 @@ func (t *Tree) Unmarshal(v interface{}) error {
 	return d.unmarshal(v)
 }
 
+func (t *Tree) UnmarshalWithOpts(v interface{}, opts DecorderOpts) error {
+	d := Decoder{tval: t, tagName: tagFieldName, decOpts: opts}
+	return d.unmarshal(v)
+}
+
 // Marshal returns the TOML encoding of Tree.
 // See Marshal() documentation for types mapping table.
 func (t *Tree) Marshal() ([]byte, error) {
@@ -659,11 +664,24 @@ func Unmarshal(data []byte, v interface{}) error {
 	return t.Unmarshal(v)
 }
 
+func UnmarshalWithOpts(data []byte, v interface{}, opts DecorderOpts) error {
+	t, err := LoadReader(bytes.NewReader(data))
+	if err != nil {
+		return err
+	}
+	return t.UnmarshalWithOpts(v, opts)
+}
+
+type DecorderOpts struct {
+	LaxNumericType bool
+}
+
 // Decoder reads and decodes TOML values from an input stream.
 type Decoder struct {
 	r    io.Reader
 	tval *Tree
 	encOpts
+	decOpts DecorderOpts
 	tagName string
 	strict  bool
 	visitor visitorState
@@ -1099,7 +1117,7 @@ func (d *Decoder) valueFromToml(mtype reflect.Type, tval interface{}, mval1 *ref
 				}
 				return reflect.ValueOf(d), nil
 			}
-			if !val.Type().ConvertibleTo(mtype) || val.Kind() == reflect.Float64 {
+			if !d.decOpts.LaxNumericType && (!val.Type().ConvertibleTo(mtype) || val.Kind() == reflect.Float64) {
 				return reflect.ValueOf(nil), fmt.Errorf("Can't convert %v(%T) to %v", tval, tval, mtype.String())
 			}
 			if reflect.Indirect(reflect.New(mtype)).OverflowInt(val.Convert(reflect.TypeOf(int64(0))).Int()) {
@@ -1123,7 +1141,7 @@ func (d *Decoder) valueFromToml(mtype reflect.Type, tval interface{}, mval1 *ref
 			return val.Convert(mtype), nil
 		case reflect.Float32, reflect.Float64:
 			val := reflect.ValueOf(tval)
-			if !val.Type().ConvertibleTo(mtype) || val.Kind() == reflect.Int64 {
+			if !d.decOpts.LaxNumericType && (!val.Type().ConvertibleTo(mtype) || val.Kind() == reflect.Int64) {
 				return reflect.ValueOf(nil), fmt.Errorf("Can't convert %v(%T) to %v", tval, tval, mtype.String())
 			}
 			if reflect.Indirect(reflect.New(mtype)).OverflowFloat(val.Convert(reflect.TypeOf(float64(0))).Float()) {
