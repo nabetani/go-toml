@@ -792,11 +792,15 @@ func (d *decoder) unmarshalFloat(value *ast.Node, v reflect.Value) error {
 	if err != nil {
 		return err
 	}
-	unmarshalToIntegral := func(conv func() interface{}) error {
+	unmarshalToIntegral := func(conv func(b []byte) (interface{}, error)) error {
 		if !d.decOpts.LaxNumericType {
 			return newDecodeError(value.Data, "float cannot be assigned to %s", v.Kind())
 		}
-		v.Set(reflect.ValueOf(conv()))
+		val, err := conv(value.Data)
+		if err != nil {
+			return err
+		}
+		v.Set(reflect.ValueOf(val))
 		return nil
 	}
 
@@ -811,21 +815,21 @@ func (d *decoder) unmarshalFloat(value *ast.Node, v reflect.Value) error {
 	case reflect.Interface:
 		v.Set(reflect.ValueOf(f))
 	case reflect.Int64:
-		return unmarshalToIntegral(func() interface{} { return int64(f) })
+		return unmarshalToIntegral(parseFloatTextAsInt64)
 	case reflect.Uint64:
-		return unmarshalToIntegral(func() interface{} { return uint64(f) })
+		return unmarshalToIntegral(parseFloatTextAsUint64)
 	case reflect.Int32:
-		return unmarshalToIntegral(func() interface{} { return int32(f) })
+		return unmarshalToIntegral(parseFloatTextAsInt32)
 	case reflect.Uint32:
-		return unmarshalToIntegral(func() interface{} { return uint32(f) })
+		return unmarshalToIntegral(parseFloatTextAsUint32)
 	case reflect.Int16:
-		return unmarshalToIntegral(func() interface{} { return int16(f) })
+		return unmarshalToIntegral(parseFloatTextAsInt16)
 	case reflect.Uint16:
-		return unmarshalToIntegral(func() interface{} { return uint16(f) })
+		return unmarshalToIntegral(parseFloatTextAsUint16)
 	case reflect.Int8:
-		return unmarshalToIntegral(func() interface{} { return int8(f) })
+		return unmarshalToIntegral(parseFloatTextAsInt8)
 	case reflect.Uint8:
-		return unmarshalToIntegral(func() interface{} { return uint8(f) })
+		return unmarshalToIntegral(parseFloatTextAsUint8)
 	default:
 		return newDecodeError(value.Data, "float cannot be assigned to %s", v.Kind())
 	}
