@@ -516,3 +516,25 @@ func TestReadInt64ButNotFit(t *testing.T) {
 		}
 	}
 }
+
+func TestReadInt64InvalidText(t *testing.T) {
+	for _, c := range []NotFitTestCase{
+		{"Foo=+nan", "toml: \"+nan\" does not fit in a integral value"},
+		{"Foo=nan", "toml: \"nan\" does not fit in a integral value"},
+		{"Foo=-nan", "toml: \"-nan\" does not fit in a integral value"},
+		{"Foo=inf", "toml: \"inf\" does not fit in a integral value"},
+		{"Foo=+inf", "toml: \"+inf\" does not fit in a integral value"},
+		{"Foo=-inf", "toml: \"-inf\" does not fit in a integral value"},
+		{"Foo=12__34.0", "toml: number must have at least one digit between underscores"},
+		{"Foo=.1", "toml: float cannot start with a dot"},
+		{"Foo=1.", "toml: float cannot end with a dot"},
+	} {
+		v := Int64Values{}
+		err := toml.UnmarshalWithOpts([]byte(c.tomlStr), &v, toml.DecorderOpts{LaxNumericType: true})
+		if err == nil {
+			t.Errorf("err should not be nil")
+		} else if err.Error() != c.msg {
+			t.Errorf("err.Error()=%q, want %q", err.Error(), c.msg)
+		}
+	}
+}
