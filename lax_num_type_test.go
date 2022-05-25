@@ -1,8 +1,10 @@
-package toml
+package toml_test
 
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/pelletier/go-toml/v2"
 )
 
 var simpleToml = []byte(`Foo=123`)
@@ -33,7 +35,7 @@ type Int64PtrValues struct {
 
 func TestReadAsFloat(t *testing.T) {
 	v := Float64Values{}
-	err := Unmarshal(simpleToml, &v)
+	err := toml.Unmarshal(simpleToml, &v)
 	if nil == err {
 		t.Error("err should not be nil")
 	}
@@ -41,8 +43,8 @@ func TestReadAsFloat(t *testing.T) {
 
 func TestReadAsFloatWithLaxNumericType(t *testing.T) {
 	v := Float64Values{}
-	opts := DecorderOpts{LaxNumericType: true}
-	err := UnmarshalWithOpts(simpleToml, &v, opts)
+	opts := toml.DecorderOpts{LaxNumericType: true}
+	err := toml.UnmarshalWithOpts(simpleToml, &v, opts)
 	if nil != err {
 		t.Errorf("err is %q want nil", err)
 	}
@@ -53,8 +55,8 @@ func TestReadAsFloatWithLaxNumericType(t *testing.T) {
 
 func TestReadAsFloatPtrWithLaxNumericType(t *testing.T) {
 	v := Float64PtrValues{}
-	opts := DecorderOpts{LaxNumericType: true}
-	err := UnmarshalWithOpts(simpleToml, &v, opts)
+	opts := toml.DecorderOpts{LaxNumericType: true}
+	err := toml.UnmarshalWithOpts(simpleToml, &v, opts)
 	if nil != err {
 		t.Errorf("err is %q want nil", err)
 	}
@@ -65,8 +67,8 @@ func TestReadAsFloatPtrWithLaxNumericType(t *testing.T) {
 
 func TestReadAsFloat32WithLaxNumericType(t *testing.T) {
 	v := Float32Values{}
-	opts := DecorderOpts{LaxNumericType: true}
-	err := UnmarshalWithOpts(simpleToml, &v, opts)
+	opts := toml.DecorderOpts{LaxNumericType: true}
+	err := toml.UnmarshalWithOpts(simpleToml, &v, opts)
 	if nil != err {
 		t.Errorf("err is %q want nil", err)
 	}
@@ -77,8 +79,8 @@ func TestReadAsFloat32WithLaxNumericType(t *testing.T) {
 
 func TestReadAsFloat32PtrWithLaxNumericType(t *testing.T) {
 	v := Float32PtrValues{}
-	opts := DecorderOpts{LaxNumericType: true}
-	err := UnmarshalWithOpts(simpleToml, &v, opts)
+	opts := toml.DecorderOpts{LaxNumericType: true}
+	err := toml.UnmarshalWithOpts(simpleToml, &v, opts)
 	if nil != err {
 		t.Errorf("err is %q want nil", err)
 	}
@@ -89,8 +91,8 @@ func TestReadAsFloat32PtrWithLaxNumericType(t *testing.T) {
 
 func TestReadAsInt64WithLaxNumericType(t *testing.T) {
 	v := Int64Values{}
-	opts := DecorderOpts{LaxNumericType: true}
-	err := UnmarshalWithOpts(simpleToml, &v, opts)
+	opts := toml.DecorderOpts{LaxNumericType: true}
+	err := toml.UnmarshalWithOpts(simpleToml, &v, opts)
 	if nil != err {
 		t.Errorf("err is %q want nil", err)
 	}
@@ -101,8 +103,8 @@ func TestReadAsInt64WithLaxNumericType(t *testing.T) {
 
 func TestReadAsInt64PtrWithLaxNumericType(t *testing.T) {
 	v := Int64PtrValues{}
-	opts := DecorderOpts{LaxNumericType: true}
-	err := UnmarshalWithOpts(simpleToml, &v, opts)
+	opts := toml.DecorderOpts{LaxNumericType: true}
+	err := toml.UnmarshalWithOpts(simpleToml, &v, opts)
 	if nil != err {
 		t.Errorf("err is %q want nil", err)
 	}
@@ -160,8 +162,8 @@ type ComplexI struct {
 
 func TestReadComplexValueAsFloat64WithLaxNumericType(t *testing.T) {
 	v := ComplexF{}
-	opts := DecorderOpts{LaxNumericType: true}
-	err := UnmarshalWithOpts(complexToml, &v, opts)
+	opts := toml.DecorderOpts{LaxNumericType: true}
+	err := toml.UnmarshalWithOpts(complexToml, &v, opts)
 	if nil != err {
 		t.Errorf("err is %q want nil", err)
 	}
@@ -174,8 +176,8 @@ func TestReadComplexValueAsFloat64WithLaxNumericType(t *testing.T) {
 }
 func TestReadComplexValueAsFloat64WithoutLaxNumericType(t *testing.T) {
 	v := ComplexF{}
-	opts := DecorderOpts{}
-	err := UnmarshalWithOpts(complexToml, &v, opts)
+	opts := toml.DecorderOpts{}
+	err := toml.UnmarshalWithOpts(complexToml, &v, opts)
 	if nil == err {
 		t.Errorf("err should not be nil")
 	}
@@ -183,8 +185,8 @@ func TestReadComplexValueAsFloat64WithoutLaxNumericType(t *testing.T) {
 
 func TestReadComplexValueAsInt64WithLaxNumericType(t *testing.T) {
 	v := ComplexI{}
-	opts := DecorderOpts{LaxNumericType: true}
-	err := UnmarshalWithOpts(complexToml, &v, opts)
+	opts := toml.DecorderOpts{LaxNumericType: true}
+	err := toml.UnmarshalWithOpts(complexToml, &v, opts)
 	if nil != err {
 		t.Errorf("err is %q want nil", err)
 	}
@@ -198,8 +200,8 @@ func TestReadComplexValueAsInt64WithLaxNumericType(t *testing.T) {
 
 func TestReadComplexValueAsInt64WithoutLaxNumericType(t *testing.T) {
 	v := ComplexI{}
-	opts := DecorderOpts{}
-	err := UnmarshalWithOpts(complexToml, &v, opts)
+	opts := toml.DecorderOpts{}
+	err := toml.UnmarshalWithOpts(complexToml, &v, opts)
 	if nil == err {
 		t.Errorf("err should not be nil")
 	}
