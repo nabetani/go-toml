@@ -234,19 +234,20 @@ func parseFloatTextAsBigFloat(b []byte) (*big.Float, error) {
 	}
 	cleaned, err := checkAndRemoveUnderscores(b)
 	if err != nil {
+		// unreachable
 		return nil, err
 	}
-
 	if cleaned[0] == '.' {
+		// unreachable
 		return nil, newDecodeError(b, "numeric text cannot start with a dot")
 	}
-
 	if cleaned[len(cleaned)-1] == '.' {
+		// unreachable
 		return nil, newDecodeError(b, "numeric text cannot end with a dot")
 	}
 	val, _, err := big.ParseFloat(string(cleaned), 10, 128 /*overkill*/, big.ToNearestEven)
 	if err != nil {
-		// unexpected
+		// unreachable
 		return nil, newDecodeError(b, "big.ParseFloat failed (%q)", err)
 	}
 	if !val.IsInt() {
